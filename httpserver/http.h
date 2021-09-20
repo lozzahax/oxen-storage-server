@@ -73,7 +73,7 @@ namespace oxen::http {
     constexpr auto SENDER_KEY_HEADER = "X-Sender-Public-Key";
 
     // Returned in a HF19+ ping_test to include the remote's pubkey in the response
-    constexpr auto SNODE_PUBKEY_HEADER = "X-Oxen-Snode-Pubkey";
+    constexpr auto SNODE_PUBKEY_HEADER = "X-Lozzax-Snode-Pubkey";
 }
 
 

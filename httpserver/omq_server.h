@@ -31,7 +31,7 @@ nlohmann::json bt_to_json(oxenmq::bt_list_consumer l);
 class OxenmqServer {
 
     oxenmq::OxenMQ omq_;
-    oxenmq::ConnectionID oxend_conn_;
+    oxenmq::ConnectionID lozzaxd_conn_;
 
     // Has information about current SNs
     ServiceNode* service_node_ = nullptr;
@@ -87,9 +87,9 @@ class OxenmqServer {
     // Access pubkeys for the 'service' command category (for access stats & logs), in binary.
     std::unordered_set<std::string> stats_access_keys_;
 
-    // Connects (and blocks until connected) to oxend.  When this returns an oxend connection will
-    // be available (and oxend_conn_ will be set to the connection id to reach it).
-    void connect_oxend(const oxenmq::address& oxend_rpc);
+    // Connects (and blocks until connected) to lozzaxd.  When this returns an lozzaxd connection will
+    // be available (and lozzaxd_conn_ will be set to the connection id to reach it).
+    void connect_lozzaxd(const oxenmq::address& lozzaxd_rpc);
 
   public:
     OxenmqServer(
@@ -98,30 +98,30 @@ class OxenmqServer {
             const std::vector<x25519_pubkey>& stats_access_keys_hex);
 
     // Initialize oxenmq; return a future that completes once we have connected to and initialized
-    // from oxend.
-    void init(ServiceNode* sn, RequestHandler* rh, RateLimiter* rl, oxenmq::address oxend_rpc);
+    // from lozzaxd.
+    void init(ServiceNode* sn, RequestHandler* rh, RateLimiter* rl, oxenmq::address lozzaxd_rpc);
 
     /// Dereferencing via * or -> accesses the contained OxenMQ instance.
     oxenmq::OxenMQ& operator*() { return omq_; }
     oxenmq::OxenMQ* operator->() { return &omq_; }
 
-    // Returns the OMQ ConnectionID for the connection to oxend.
-    const oxenmq::ConnectionID& oxend_conn() const { return oxend_conn_; }
+    // Returns the OMQ ConnectionID for the connection to lozzaxd.
+    const oxenmq::ConnectionID& lozzaxd_conn() const { return lozzaxd_conn_; }
 
-    // Invokes a request to the local oxend; given arguments (which must contain at least the
+    // Invokes a request to the local lozzaxd; given arguments (which must contain at least the
     // request name and a callback) are forwarded as `omq.request(connid, ...)`.
     template <typename... Args>
-    void oxend_request(Args&&... args) {
-        assert(oxend_conn_);
-        omq_.request(oxend_conn(), std::forward<Args>(args)...);
+    void lozzaxd_request(Args&&... args) {
+        assert(lozzaxd_conn_);
+        omq_.request(lozzaxd_conn(), std::forward<Args>(args)...);
     }
 
-    // Sends a one-way message to the local oxend; arguments are forwarded as `omq.send(connid,
+    // Sends a one-way message to the local lozzaxd; arguments are forwarded as `omq.send(connid,
     // ...)` (and must contain at least a command name).
     template <typename... Args>
-    void oxend_send(Args&&... args) {
-        assert(oxend_conn_);
-        omq_.send(oxend_conn(), std::forward<Args>(args)...);
+    void lozzaxd_send(Args&&... args) {
+        assert(lozzaxd_conn_);
+        omq_.send(lozzaxd_conn(), std::forward<Args>(args)...);
     }
 
     // Encodes the onion request data that we send for internal SN-to-SN onion requests starting at

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 #include "rate_limiter.h"
 #include "version.h"
 #include "request_handler.h"
@@ -115,7 +115,7 @@ private:
     // The thread in which the uWebSockets event listener is running
     std::thread server_thread_;
     // Cached string we send for the Server header
-    std::string server_header_ = "Oxen Storage Server/" + std::string{STORAGE_SERVER_VERSION_STRING};
+    std::string server_header_ = "Lozzax Storage Server/" + std::string{STORAGE_SERVER_VERSION_STRING};
     // Access-Control-Allow-Origin header values; if one of these match the incoming Origin header
     // we return it in the ACAO header; otherwise (or if this is empty) we omit the header entirely.
     std::unordered_set<std::string> cors_;

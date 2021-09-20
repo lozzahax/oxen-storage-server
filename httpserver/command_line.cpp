@@ -22,20 +22,20 @@ void command_line_parser::parse_args(int argc, char* argv[]) {
     po::options_description all, hidden;
     auto home = util::get_home_dir().value_or(".");
     auto oxen_sock = home;
-    if (home == fs::path{"/var/lib/oxen"} || home == fs::path{"/var/lib/loki"})
-        oxen_sock /= "oxend.sock";
+    if (home == fs::path{"/var/lib/lozzax"} || home == fs::path{"/var/lib/loki"})
+        oxen_sock /= "lozzaxd.sock";
     else
-        oxen_sock = oxen_sock / ".oxen" / "oxend.sock";
+        oxen_sock = oxen_sock / ".lozzax" / "lozzaxd.sock";
 
-    options_.oxend_omq_rpc = "ipc://" + oxen_sock.u8string();
+    options_.lozzaxd_omq_rpc = "ipc://" + oxen_sock.u8string();
     std::string old_rpc_ip;
     uint16_t old_rpc_port = 0;
     // clang-format off
     desc_.add_options()
-        ("data-dir", po::value(&options_.data_dir), "Path to persistent data (defaults to ~/.oxen/storage)")
+        ("data-dir", po::value(&options_.data_dir), "Path to persistent data (defaults to ~/.lozzax/storage)")
         ("config-file", po::value(&config_file), "Path to custom config file (defaults to `storage-server.conf' inside --data-dir)")
         ("log-level", po::value(&options_.log_level), "Log verbosity level, see Log Levels below for accepted values")
-        ("oxend-rpc", po::value(&options_.oxend_omq_rpc), "OMQ RPC address on which oxend is available; typically ipc:///path/to/oxend.sock or tcp://localhost:22025")
+        ("lozzaxd-rpc", po::value(&options_.lozzaxd_omq_rpc), "LMQ RPC address on which lozzaxd is available; typically ipc:///path/to/lozzaxd.sock or tcp://localhost:22125")
         ("omq-port", po::value(&options_.omq_port), "Public port to listen on for OxenMQ connections")
         ("testnet", po::bool_switch(&options_.testnet), "Start storage server in testnet mode")
         ("force-start", po::bool_switch(&options_.force_start), "Ignore the initialisation ready check")
@@ -44,9 +44,9 @@ void command_line_parser::parse_args(int argc, char* argv[]) {
         ("help", po::bool_switch(&options_.print_help),"Shows this help message")
         ("stats-access-key", po::value(&options_.stats_access_keys)->multitoken(), "A public key (x25519) that will be given access to the `get_stats` omq endpoint")
 #ifdef INTEGRATION_TEST
-        ("oxend-key", po::value(&options_.oxend_key), "Legacy secret key (integration testing only)")
-        ("oxend-x25519-key", po::value(&options_.oxend_x25519_key), "x25519 secret key (integration testing only)")
-        ("oxend-ed25519-key", po::value(&options_.oxend_ed25519_key), "ed25519 public key (integration testing only)");
+        ("lozzaxd-key", po::value(&options_.lozzaxd_key), "Legacy secret key (integration testing only)")
+        ("lozzaxd-x25519-key", po::value(&options_.lozzaxd_x25519_key), "x25519 secret key (integration testing only)")
+        ("lozzaxd-ed25519-key", po::value(&options_.lozzaxd_ed25519_key), "ed25519 public key (integration testing only)");
 #endif
         ;
         // Add hidden ip and port options.  You technically can use the `--ip=` and `--port=` with
@@ -55,10 +55,10 @@ void command_line_parser::parse_args(int argc, char* argv[]) {
     hidden.add_options()
         ("ip", po::value<std::string>(), "(unused)")
         ("port", po::value(&options_.port), "Port to listen on")
-        ("oxend-rpc-ip", po::value(&old_rpc_ip), "Obsolete: oxend HTTP RPC IP; use --oxend-rpc with the zmq address instead")
-        ("oxend-rpc-port", po::value(&old_rpc_port), "Obsolete: oxend HTTP RPC port; use --oxend-rpc with the zmq address instead")
-        ("lokid-rpc-ip", po::value(&old_rpc_ip), "Backwards compatible option for oxend RPC IP")
-        ("lokid-rpc-port", po::value(&old_rpc_port), "Backwards compatible option for oxend RPC port")
+        ("lozzaxd-rpc-ip", po::value(&old_rpc_ip), "Obsolete: lozzaxd HTTP RPC IP; use --lozzaxd-rpc with the zmq address instead")
+        ("lozzaxd-rpc-port", po::value(&old_rpc_port), "Obsolete: lozzaxd HTTP RPC port; use --lozzaxd-rpc with the zmq address instead")
+        ("lokid-rpc-ip", po::value(&old_rpc_ip), "Backwards compatible option for lozzaxd RPC IP")
+        ("lokid-rpc-port", po::value(&old_rpc_port), "Backwards compatible option for lozzaxd RPC port")
         ("lmq-port", po::value(&options_.omq_port), "Backwards compatible old name for --omq-port")
         ;
     // clang-format on
@@ -95,17 +95,17 @@ void command_line_parser::parse_args(int argc, char* argv[]) {
         return;
     }
 
-    if (options_.testnet && !vm.count("oxend-rpc")) {
-        oxen_sock = oxen_sock.parent_path() / "testnet" / "oxend.sock";
-        options_.oxend_omq_rpc = "ipc://" + oxen_sock.u8string();
+    if (options_.testnet && !vm.count("lozzaxd-rpc")) {
+        oxen_sock = oxen_sock.parent_path() / "testnet" / "lozzaxd.sock";
+        options_.lozzaxd_omq_rpc = "ipc://" + oxen_sock.u8string();
     }
 
-    if (!vm.count("oxend-rpc") && (!old_rpc_ip.empty() || old_rpc_port != 0)) {
-        // If oxend-rpc is specified then just ignore the old values; we really should warn, but the
+    if (!vm.count("lozzaxd-rpc") && (!old_rpc_ip.empty() || old_rpc_port != 0)) {
+        // If lozzaxd-rpc is specified then just ignore the old values; we really should warn, but the
         // logging system isn't initialized yet.
         throw std::runtime_error{
-            "--oxend-rpc-ip/--oxend-rpc-port are obsolete: use --oxend-rpc "
-            "with the OMQ RPC address instead"
+            "--lozzaxd-rpc-ip/--lozzaxd-rpc-port are obsolete: use --lozzaxd-rpc "
+            "with the LMQ RPC address instead"
         };
     }
 

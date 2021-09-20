@@ -5,7 +5,7 @@
 #include <mutex>
 #include <unordered_map>
 
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 
 namespace oxenmq { class OxenMQ; }
 

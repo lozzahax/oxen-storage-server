@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: oxen-storage-server
-Source: <https://github.com/loki-project/loki-storage-server>
+Upstream-Name: lozzax-storage-server
+Source: <https://github.com/lozzax/lozzax-storage-server>
 
 Files: *
 Copyright: 2018, 2019 The Loki Project

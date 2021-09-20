@@ -5,7 +5,7 @@
 #include "http.h"
 #include "onion_processing.h"
 #include "oxen_common.h"
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 #include "service_node.h"
 #include "string_utils.hpp"
 
@@ -164,7 +164,7 @@ class RequestHandler {
     void process_client_req(rpc::store&& req, std::function<void(Response)> cb);
     void process_client_req(rpc::retrieve&& req, std::function<void(Response)> cb);
     void process_client_req(rpc::get_swarm&& req, std::function<void(Response)> cb);
-    void process_client_req(rpc::oxend_request&& req, std::function<void(Response)> cb);
+    void process_client_req(rpc::lozzaxd_request&& req, std::function<void(Response)> cb);
     void process_client_req(rpc::info&&, std::function<void(Response)> cb);
     void process_client_req(rpc::delete_all&&, std::function<void(Response)> cb);
     void process_client_req(rpc::delete_msgs&&, std::function<void(Response)> cb);
@@ -199,16 +199,16 @@ class RequestHandler {
             std::string msg_hash_hex,
             std::function<void(MessageTestStatus, std::string, std::chrono::steady_clock::duration)> callback);
 
-    // Forwards a request to oxend RPC. `params` should contain:
+    // Forwards a request to lozzaxd RPC. `params` should contain:
     // - endpoint -- the name of the rpc endpoint; currently allowed are `ons_resolve` and
     // `get_service_nodes`.
-    // - params -- optional dict of parameters to pass through to oxend as part of the request
+    // - params -- optional dict of parameters to pass through to lozzaxd as part of the request
     //
     // See oxen-core/rpc/core_rpc_server_command_defs.h for parameters to these endpoints.
     //
-    // Returns (via the response callback) the oxend JSON object on success; on failure returns
+    // Returns (via the response callback) the lozzaxd JSON object on success; on failure returns
     // a failure response with a body of the error string.
-    void process_oxend_request(const nlohmann::json& params,
+    void process_lozzaxd_request(const nlohmann::json& params,
                                std::function<void(Response)> cb);
 
     // Test only: retrieve all db entires

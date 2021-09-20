@@ -4,7 +4,7 @@
 #include "http.h"
 #include "oxen_common.h"
 #include "oxen_logger.h"
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 #include "channel_encryption.hpp"
 #include "oxenmq/base64.h"
 #include "rate_limiter.h"
@@ -302,7 +302,7 @@ const OxenmqServer::rpc_map OxenmqServer::client_rpc_endpoints =
     register_client_rpc_endpoints(rpc::client_rpc_types{});
 
 void OxenmqServer::handle_client_request(std::string_view method, oxenmq::Message& message, bool forwarded) {
-    OXEN_LOG(debug, "Handling OMQ RPC request for {}", method);
+    OXEN_LOG(debug, "Handling LMQ RPC request for {}", method);
     auto it = client_rpc_endpoints.find(method);
     assert(it != client_rpc_endpoints.end()); // This endpoint shouldn't have been registered if it isn't in here
 
@@ -340,13 +340,13 @@ void OxenmqServer::handle_client_request(std::string_view method, oxenmq::Messag
                     body = view_body(res);
 
                 if (res.status == http::OK) {
-                    OXEN_LOG(debug, "OMQ RPC request successful, returning {}-byte {} response",
+                    OXEN_LOG(debug, "LMQ RPC request successful, returning {}-byte {} response",
                             body.size(), dump.empty() ? "text" : bt_encoded ? "bt" : "json");
                     // Success: return just the body
                     send.reply(body);
                 } else {
                     // On error return [errcode, body]
-                    OXEN_LOG(debug, "OMQ RPC request failed, replying with [{}, {}]", res.status.first, body);
+                    OXEN_LOG(debug, "LMQ RPC request failed, replying with [{}, {}]", res.status.first, body);
                     send.reply(std::to_string(res.status.first), body);
                 }
             });
@@ -422,11 +422,11 @@ OxenmqServer::OxenmqServer(
         .add_request_command("get_logs", [this](auto& m) { handle_get_logs(m); })
         ;
 
-    // We send a sub.block to oxend to tell it to push new block notifications to us via this
+    // We send a sub.block to lozzaxd to tell it to push new block notifications to us via this
     // endpoint:
     omq_.add_category("notify", oxenmq::AuthLevel::admin)
         .add_request_command("block", [this](auto& m) {
-            OXEN_LOG(debug, "Recieved new block notification from oxend, updating swarms");
+            OXEN_LOG(debug, "Recieved new block notification from lozzaxd, updating swarms");
             if (service_node_) service_node_->update_swarms();
         });
 
@@ -440,16 +440,16 @@ OxenmqServer::OxenmqServer(
     omq_.EPHEMERAL_ROUTING_ID = false;
 }
 
-void OxenmqServer::connect_oxend(const oxenmq::address& oxend_rpc) {
-    // Establish our persistent connection to oxend.
+void OxenmqServer::connect_lozzaxd(const oxenmq::address& lozzaxd_rpc) {
+    // Establish our persistent connection to lozzaxd.
     auto start = std::chrono::steady_clock::now();
     while (true) {
         std::promise<bool> prom;
-        OXEN_LOG(info, "Establishing connection to oxend...");
-        omq_.connect_remote(oxend_rpc,
-            [this, &prom](auto cid) { oxend_conn_ = cid; prom.set_value(true); },
-            [&prom, &oxend_rpc](auto&&, std::string_view reason) {
-                OXEN_LOG(warn, "failed to connect to local oxend @ {}: {}; retrying", oxend_rpc, reason);
+        OXEN_LOG(info, "Establishing connection to lozzaxd...");
+        omq_.connect_remote(lozzaxd_rpc,
+            [this, &prom](auto cid) { lozzaxd_conn_ = cid; prom.set_value(true); },
+            [&prom, &lozzaxd_rpc](auto&&, std::string_view reason) {
+                OXEN_LOG(warn, "failed to connect to local lozzaxd @ {}: {}; retrying", lozzaxd_rpc, reason);
                 prom.set_value(false);
             },
             // Turn this off since we are using oxenmq's own key and don't want to replace some existing
@@ -458,7 +458,7 @@ void OxenmqServer::connect_oxend(const oxenmq::address& oxend_rpc) {
             oxenmq::AuthLevel::admin);
 
         if (prom.get_future().get()) {
-            OXEN_LOG(info, "Connected to oxend in {}",
+            OXEN_LOG(info, "Connected to lozzaxd in {}",
                     util::short_duration(std::chrono::steady_clock::now() - start));
             break;
         }
@@ -466,25 +466,25 @@ void OxenmqServer::connect_oxend(const oxenmq::address& oxend_rpc) {
     }
 }
 
-void OxenmqServer::init(ServiceNode* sn, RequestHandler* rh, RateLimiter* rl, oxenmq::address oxend_rpc) {
+void OxenmqServer::init(ServiceNode* sn, RequestHandler* rh, RateLimiter* rl, oxenmq::address lozzaxd_rpc) {
     // Initialization happens in 3 steps:
-    // - connect to oxend
-    // - get initial block update from oxend
+    // - connect to lozzaxd
+    // - get initial block update from lozzaxd
     // - start OMQ and HTTPS listeners
     assert(!service_node_);
     service_node_ = sn;
     request_handler_ = rh;
     rate_limiter_ = rl;
     omq_.start();
-    // Block until we are connected to oxend:
-    connect_oxend(oxend_rpc);
+    // Block until we are connected to lozzaxd:
+    connect_lozzaxd(lozzaxd_rpc);
 
-    // Block until we get a block update from oxend:
-    service_node_->on_oxend_connected();
+    // Block until we get a block update from lozzaxd:
+    service_node_->on_lozzaxd_connected();
 
     // start omq listener
     const auto& me = service_node_->own_address();
-    OXEN_LOG(info, "Starting listening for OxenMQ connections on port {}", me.omq_port);
+    OXEN_LOG(info, "Starting listening for LozzaxMQ connections on port {}", me.omq_port);
     auto omq_prom = std::make_shared<std::promise<void>>();
     auto omq_future = omq_prom->get_future();
     omq_.listen_curve(
@@ -504,7 +504,7 @@ void OxenmqServer::init(ServiceNode* sn, RequestHandler* rh, RateLimiter* rl, ox
     try {
         omq_future.get();
     } catch (const std::runtime_error&) {
-        auto msg = fmt::format("OxenMQ server failed to bind to port {}", me.omq_port);
+        auto msg = fmt::format("LozzaxMQ server failed to bind to port {}", me.omq_port);
         OXEN_LOG(critical, msg);
         throw std::runtime_error{msg};
     }

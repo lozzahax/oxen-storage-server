@@ -175,7 +175,7 @@ std::vector<SwarmInfo> apply_ips(
         }
     }
 
-    OXEN_LOG(debug, "Updated {} entries from oxend", updates_count);
+    OXEN_LOG(debug, "Updated {} entries from lozzaxd", updates_count);
     return result_swarms;
 }
 

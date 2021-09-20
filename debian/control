@@ -1,7 +1,7 @@
-Source: oxen-storage-server
+Source: lozzax-storage-server
 Section: net
 Priority: optional
-Maintainer: Jason Rhinelander <jason@loki.network>
+Maintainer: loza  <loza@lozzax.xyz>
 Build-Depends: debhelper (>= 11),
     cmake,
     g++-8,
@@ -16,22 +16,22 @@ Build-Depends: debhelper (>= 11),
     libsystemd-dev,
     pkg-config
 Standards-Version: 4.1.3
-Homepage: https://oxen.io
+Homepage: https://lozzax.xyz
 
-Package: oxen-storage-server
+Package: lozzax-storage-server
 Architecture: any
-Depends: oxend, ${shlibs:Depends}, ${misc:Depends}
-Suggests: oxen-service-node
-Description: Oxen storage server
- This package contains the Oxen storage server component of a Oxen service
- node.  This package requires a running oxend configured as a service node; the
- default configuration is suitable for the oxend configuration set up by the
- oxen-service-node package, but it is possible to configure manually via the
- /etc/oxen/storage.conf file.
+Depends: lozzaxd, ${shlibs:Depends}, ${misc:Depends}
+Suggests: lozzax-service-node
+Description: Lozzax storage server
+ This package contains the Lozzax storage server component of a Lozzax service
+ node.  This package requires a running lozzaxd configured as a service node; the
+ default configuration is suitable for the lozzaxd configuration set up by the
+ lozzax-service-node package, but it is possible to configure manually via the
+ /etc/lozzax/storage.conf file.
 
 Package: loki-storage-server
 Architecture: all
 Section: oldlibs
-Depends: oxen-storage-server, ${misc:Depends}
+Depends: lozzax-storage-server, ${misc:Depends}
 Description: transitional package
  This is a transitional package. It can safely be removed.

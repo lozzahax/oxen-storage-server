@@ -31,5 +31,5 @@ override_dh_strip:
 	dh_strip --no-ddebs
 
 override_dh_installsystemd:
-	dh_installsystemd --name=oxen-testnet-storage-server --no-enable --no-start
-	dh_installsystemd --name=oxen-storage-server
+	dh_installsystemd --name=lozzax-testnet-storage-server --no-enable --no-start
+	dh_installsystemd --name=lozzax-storage-server

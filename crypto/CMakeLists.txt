@@ -1,6 +1,6 @@
 
 add_library(crypto STATIC
-    src/oxend_key.cpp
+    src/lozzaxd_key.cpp
     src/channel_encryption.cpp
     src/signature.cpp)
 

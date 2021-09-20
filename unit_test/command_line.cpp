@@ -83,20 +83,20 @@ TEST_CASE("invalid port", "[cli][port]") {
 
 }
 
-TEST_CASE("oxend rpc", "[cli][oxend]") {
+TEST_CASE("lozzaxd rpc", "[cli][lozzaxd]") {
     oxen::command_line_parser parser;
     REQUIRE_NOTHROW(
-            parser.parse_args({"httpserver", "0.0.0.0", "80", "--omq-port", "123", "--oxend-rpc",
-                "ipc:///path/to/oxend.sock"}));
-    CHECK(parser.get_options().oxend_omq_rpc == "ipc:///path/to/oxend.sock");
+            parser.parse_args({"httpserver", "0.0.0.0", "80", "--omq-port", "123", "--lozzaxd-rpc",
+                "ipc:///path/to/lozzaxd.sock"}));
+    CHECK(parser.get_options().lozzaxd_omq_rpc == "ipc:///path/to/lozzaxd.sock");
 }
 
-TEST_CASE("oxend rpc -- tcp", "[cli][oxend]") {
+TEST_CASE("lozzaxd rpc -- tcp", "[cli][lozzaxd]") {
     oxen::command_line_parser parser;
     REQUIRE_NOTHROW(
-            parser.parse_args({"httpserver", "0.0.0.0", "80", "--omq-port", "123", "--oxend-rpc",
+            parser.parse_args({"httpserver", "0.0.0.0", "80", "--omq-port", "123", "--lozzaxd-rpc",
                 "tcp://127.0.0.2:3456"}));
-    CHECK(parser.get_options().oxend_omq_rpc == "tcp://127.0.0.2:3456");
+    CHECK(parser.get_options().lozzaxd_omq_rpc == "tcp://127.0.0.2:3456");
 }
 
 TEST_CASE("data dir", "[cli][datadir]") {

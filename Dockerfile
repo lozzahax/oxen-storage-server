@@ -72,4 +72,4 @@ RUN cd loki-storage-server \
     && cmake .. -DBOOST_ROOT=$BOOST_ROOT -Dsodium_USE_STATIC_LIBS=ON \
     && cmake --build . -- -j8
 
-RUN loki-storage-server/build/httpserver/oxen-storage --version 
+RUN loki-storage-server/build/httpserver/lozzax-storage --version 

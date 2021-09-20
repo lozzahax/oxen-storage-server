@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 
 namespace oxen {
 

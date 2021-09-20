@@ -7,7 +7,7 @@ namespace oxen {
 
 struct command_line_options {
     uint16_t port;
-    std::string oxend_omq_rpc; // Defaults to ipc://$HOME/.oxen/[testnet/]oxend.sock
+    std::string lozzaxd_omq_rpc; // Defaults to ipc://$HOME/.lozzax/[testnet/]lozzaxd.sock
     uint16_t omq_port;
     bool force_start = false;
     bool print_version = false;
@@ -16,9 +16,9 @@ struct command_line_options {
     std::string ip;
     std::string log_level = "info";
     std::string data_dir;
-    std::string oxend_key; // test only (but needed for backwards compatibility)
-    std::string oxend_x25519_key;  // test only
-    std::string oxend_ed25519_key; // test only
+    std::string lozzaxd_key; // test only (but needed for backwards compatibility)
+    std::string lozzaxd_x25519_key;  // test only
+    std::string lozzaxd_ed25519_key; // test only
     // x25519 key that will be given access to get_stats omq endpoint
     std::vector<std::string> stats_access_keys;
 };

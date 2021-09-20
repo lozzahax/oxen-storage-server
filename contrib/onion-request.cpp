@@ -43,13 +43,13 @@ SNODE_PK should be primary (legacy) pubkey(s) on test (or mainnet if --mainnet i
 
 PAYLOAD/CONTROL are values to pass to the request and should be:
 
-Onion requests for SS and oxend:
+Onion requests for SS and lozzaxd:
 
     Pass '{"headers":[]}' for CONTROL
 
-    PAYLOAD should be the JSON data; for example for an oxend request:
+    PAYLOAD should be the JSON data; for example for an lozzaxd request:
 
-        {"method": "oxend_request", "params": {"endpoint": "get_service_nodes", "params": {"limit": 5}}}
+        {"method": "lozzaxd_request", "params": {"endpoint": "get_service_nodes", "params": {"limit": 5}}}
 
     and for a swarm member lookup:
 
@@ -58,7 +58,7 @@ Onion requests for SS and oxend:
 Proxy requests should have an whatever data is to be posted in the PAYLOAD string and CONTROL set to
 the connection details such as:
 
-        {"host": "jagerman.com", "target": "/oxen/lsrpc"}
+        {"host": "lozzax.tech", "target": "/lozzax/lsrpc"}
 
 Both PAYLOAD and CONTROL may be passed filenames to read prefixed with `@` (for example:
 @payload.data, @/path/to/control.json)
@@ -67,8 +67,8 @@ Both PAYLOAD and CONTROL may be passed filenames to read prefixed with `@` (for 
     return 1;
 }
 
-const oxenmq::address TESTNET_OMQ{"tcp://public.loki.foundation:9999"};
-const oxenmq::address MAINNET_OMQ{"tcp://public.loki.foundation:22029"};
+const oxenmq::address TESTNET_OMQ{"tcp://public.lazzax.xyz::9999"};
+const oxenmq::address MAINNET_OMQ{"tcp://public.lazzax.xyz:22129"};
 
 void onion_request(std::string ip, uint16_t port, std::vector<std::pair<ed25519_pubkey, x25519_pubkey>> keys,
         bool mainnet, std::optional<EncryptType> enc_type, std::string_view payload, std::string_view control);
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
     auto rpc = omq.connect_remote(omq_addr,
             [](auto) {},
             [&got, omq_addr](auto, auto err) {
-                try { throw std::runtime_error{"Failed to connect to oxend @ " + omq_addr.full_address() + ": " + std::string{err}}; }
+                try { throw std::runtime_error{"Failed to connect to lozzaxd @ " + omq_addr.full_address() + ": " + std::string{err}}; }
                 catch (...) { got.set_exception(std::current_exception()); }
             });
     std::string first_ip;

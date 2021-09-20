@@ -1,7 +1,7 @@
 #pragma once
 
 #include "oxen_common.h"
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 #include "sn_record.h"
 
 #include <chrono>

@@ -80,22 +80,22 @@ ServiceNode::ServiceNode(
     }, 1h);
 }
 
-void ServiceNode::on_oxend_connected() {
+void ServiceNode::on_lozzaxd_connected() {
     auto started = std::chrono::steady_clock::now();
     update_swarms();
-    oxend_ping();
-    omq_server_->add_timer([this] { oxend_ping(); }, OXEND_PING_INTERVAL);
+    lozzaxd_ping();
+    omq_server_->add_timer([this] { lozzaxd_ping(); }, OXEND_PING_INTERVAL);
     omq_server_->add_timer([this] { ping_peers(); },
             reachability_testing::TESTING_TIMER_INTERVAL);
 
     std::unique_lock lock{first_response_mutex_};
     while (true) {
         if (first_response_cv_.wait_for(lock, 5s, [this] { return got_first_response_; })) {
-            OXEN_LOG(info, "Got initial block update from oxend in {}", util::short_duration(
+            OXEN_LOG(info, "Got initial block update from lozzaxd in {}", util::short_duration(
                         std::chrono::steady_clock::now() - started));
             break;
         }
-        OXEN_LOG(warn, "Still waiting for initial block update from oxend...");
+        OXEN_LOG(warn, "Still waiting for initial block update from lozzaxd...");
     }
 }
 
@@ -110,7 +110,7 @@ static block_update
 parse_swarm_update(const std::string& response_body) {
 
     if (response_body.empty()) {
-        OXEN_LOG(critical, "Bad oxend rpc response: no response body");
+        OXEN_LOG(critical, "Bad lozzaxd rpc response: no response body");
         throw std::runtime_error("Failed to parse swarm update");
     }
 
@@ -151,7 +151,7 @@ parse_swarm_update(const std::string& response_body) {
             if (pk_x25519_hex.empty() || pk_ed25519_hex.empty()) {
                 // These will always either both be present or neither present.  If they are missing
                 // there isn't much we can do: it means the remote hasn't transmitted them yet (or
-                // our local oxend hasn't received them yet).
+                // our local lozzaxd hasn't received them yet).
                 missing_aux_pks++;
                 OXEN_LOG(debug, "ed25519/x25519 pubkeys are missing from service node info {}", pk_hex);
                 continue;
@@ -182,11 +182,11 @@ parse_swarm_update(const std::string& response_body) {
         if (missing_aux_pks >
                 MISSING_PUBKEY_THRESHOLD::num*total/MISSING_PUBKEY_THRESHOLD::den) {
             OXEN_LOG(warn, "Missing ed25519/x25519 pubkeys for {}/{} service nodes; "
-                    "oxend may be out of sync with the network", missing_aux_pks, total);
+                    "lozzaxd may be out of sync with the network", missing_aux_pks, total);
         }
 
     } catch (const std::exception& e) {
-        OXEN_LOG(critical, "Bad oxend rpc response: invalid json ({})", e.what());
+        OXEN_LOG(critical, "Bad lozzaxd rpc response: invalid json ({})", e.what());
         throw std::runtime_error("Failed to parse swarm update");
     }
 
@@ -222,12 +222,9 @@ void ServiceNode::bootstrap_data() {
 
     std::vector<oxenmq::address> seed_nodes;
     if (oxen::is_mainnet) {
-        seed_nodes.emplace_back("curve://public.loki.foundation:22027/3c157ed3c675f56280dc5d8b2f00b327b5865c127bf2c6c42becc3ca73d9132b");
-        seed_nodes.emplace_back("curve://imaginary.stream:22027/449a8011d3abcb97f5db6d91529b1106b0590d2f2a86635104fe7059ffeeef47");
-        seed_nodes.emplace_back("curve://storage.seed1.loki.network:22027/6d4146b51404576efa6f582ea0562532b25ba4aceddb0d5d12bc127360678551");
-        seed_nodes.emplace_back("curve://storage.seed3.loki.network:22027/146fb2840583c32f7e281b81d8c5568cc7bb04155fb9968987bb265b6ca9816e");
+        seed_nodes.emplace_back("curve://storage.lozzax.xyz:22129/d17df9f0520fa14d29b3ebd37d840ce5b3c804efa93f6bc33ca8e48c6504a42f");
     } else {
-        seed_nodes.emplace_back("curve://public.loki.foundation:38161/80adaead94db3b0402a6057869bdbe63204a28e93589fd95a035480ed6c03b45");
+//        seed_nodes.emplace_back("curve://public.loki.foundation:38161/80adaead94db3b0402a6057869bdbe63204a28e93589fd95a035480ed6c03b45");
     }
 
     auto req_counter = std::make_shared<std::atomic<int>>(0);
@@ -578,11 +575,11 @@ void ServiceNode::update_swarms() {
     if (got_first_response_ && !block_hash_.empty())
         params["poll_block_hash"] = block_hash_;
 
-    omq_server_.oxend_request("rpc.get_service_nodes",
+    omq_server_.lozzaxd_request("rpc.get_service_nodes",
         [this](bool success, std::vector<std::string> data) {
             updating_swarms_ = false;
             if (!success || data.size() < 2) {
-                OXEN_LOG(critical, "Failed to contact local oxend for service node list");
+                OXEN_LOG(critical, "Failed to contact local lozzaxd for service node list");
                 return;
             }
             try {
@@ -602,7 +599,7 @@ void ServiceNode::update_swarms() {
                     // Incoming tests are *usually* height - TEST_BLOCKS_BUFFER, but request a
                     // couple extra as a buffer.
                     for (uint64_t h = bu.height - TEST_BLOCKS_BUFFER - 2; h < bu.height; h++)
-                        omq_server_.oxend_request("rpc.get_block_hash",
+                        omq_server_.lozzaxd_request("rpc.get_block_hash",
                                 [this, h](bool success, std::vector<std::string> data) {
                                     if (!(success && data.size() == 2 && data[0] == "200" && data[1].size() == 66 &&
                                                 data[1].front() == '"' && data[1].back() == '"'))
@@ -632,7 +629,7 @@ void ServiceNode::update_swarms() {
                     if (total >= (oxen::is_mainnet ? 100 : 10)
                             && missing <=
                                 MISSING_PUBKEY_THRESHOLD::num*total/MISSING_PUBKEY_THRESHOLD::den) {
-                        OXEN_LOG(info, "Initialized from oxend with {}/{} SN records",
+                        OXEN_LOG(info, "Initialized from lozzaxd with {}/{} SN records",
                                 total-missing, total);
                         syncing_ = false;
                     } else {
@@ -710,9 +707,9 @@ void ServiceNode::test_reachability(const sn_record& sn, int previous_failures) 
             sn.pubkey_legacy);
 
     if (sn.ip == "0.0.0.0") {
-        // oxend won't accept 0.0.0.0 in an uptime proof, which means if we see this the node hasn't
+        // lozzaxd won't accept 0.0.0.0 in an uptime proof, which means if we see this the node hasn't
         // sent an uptime proof; we could treat it as a failure, but that seems unnecessary since
-        // oxend will already fail the service node for not sending uptime proofs.
+        // lozzaxd will already fail the service node for not sending uptime proofs.
         OXEN_LOG(debug, "Skipping HTTPS test of {}: no public IP received yet");
         return;
     }
@@ -721,7 +718,7 @@ void ServiceNode::test_reachability(const sn_record& sn, int previous_failures) 
 
     // We start off two separate tests below; they share this pair and use the atomic int here to
     // figure out whether they were called first (in which case they do nothing) or second (in which
-    // case they have to report the final result to oxend).
+    // case they have to report the final result to lozzaxd).
     auto test_results = std::make_shared<std::pair<const sn_record, std::atomic<uint8_t>>>(
             sn, 0);
 
@@ -734,7 +731,7 @@ void ServiceNode::test_reachability(const sn_record& sn, int previous_failures) 
             ? oxenmq::to_base32z(sn.pubkey_ed25519.view()) + ".snode"
             : "service-node.snode"},
         {"Content-Type", "application/octet-stream"},
-        {"User-Agent", "Oxen Storage Server/" + std::string{STORAGE_SERVER_VERSION_STRING}},
+        {"User-Agent", "Lozzax Storage Server/" + std::string{STORAGE_SERVER_VERSION_STRING}},
     };
 
     if (old_ping_test)
@@ -814,55 +811,55 @@ void ServiceNode::test_reachability(const sn_record& sn, int previous_failures) 
     );
 }
 
-void ServiceNode::oxend_ping() {
+void ServiceNode::lozzaxd_ping() {
 
     std::lock_guard guard(sn_mutex_);
 
-    json oxend_params{
+    json lozzaxd_params{
         {"version", STORAGE_SERVER_VERSION},
         {"https_port", our_address_.port},
         {"omq_port", our_address_.omq_port}};
 
-    omq_server_.oxend_request("admin.storage_server_ping",
+    omq_server_.lozzaxd_request("admin.storage_server_ping",
         [this](bool success, std::vector<std::string> data) {
             if (!success)
-                OXEN_LOG(critical, "Could not ping oxend: Request failed ({})", data.front());
+                OXEN_LOG(critical, "Could not ping lozzaxd: Request failed ({})", data.front());
             else if (data.size() < 2 || data[1].empty())
-                OXEN_LOG(critical, "Could not ping oxend: Empty body on reply");
+                OXEN_LOG(critical, "Could not ping lozzaxd: Empty body on reply");
             else
                 try {
                     if (const auto status = json::parse(data[1]).at("status").get<std::string>();
                             status == "OK") {
-                        auto good_pings = ++oxend_pings_;
+                        auto good_pings = ++lozzaxd_pings_;
                         if (good_pings == 1) // First ping after startup or after ping failure
-                            OXEN_LOG(info, "Successfully pinged oxend");
+                            OXEN_LOG(info, "Successfully pinged lozzaxd");
                         else if (good_pings % (1h / OXEND_PING_INTERVAL) == 0) // Once an hour
-                            OXEN_LOG(info, "{} successful oxend pings", good_pings);
+                            OXEN_LOG(info, "{} successful lozzaxd pings", good_pings);
                         else
                             OXEN_LOG(debug, "Successfully pinged Oxend ({} consecutive times)", good_pings);
                     } else {
-                        OXEN_LOG(critical, "Could not ping oxend: {}", status);
-                        oxend_pings_ = 0;
+                        OXEN_LOG(critical, "Could not ping lozzaxd: {}", status);
+                        lozzaxd_pings_ = 0;
                     }
                 } catch (...) {
-                    OXEN_LOG(critical, "Could not ping oxend: bad json in response");
+                    OXEN_LOG(critical, "Could not ping lozzaxd: bad json in response");
                 }
         },
-        oxend_params.dump()
+        lozzaxd_params.dump()
     );
 
-    // Also re-subscribe (or subscribe, in case oxend restarted) to block subscriptions.  This makes
-    // oxend start firing notify.block messages at as whenever new blocks arrive, but we have to
+    // Also re-subscribe (or subscribe, in case lozzaxd restarted) to block subscriptions.  This makes
+    // lozzaxd start firing notify.block messages at as whenever new blocks arrive, but we have to
     // renew the subscription within 30min to keep it alive, so do it here (it doesn't hurt anything
     // for it to be much faster than 30min).
-    omq_server_.oxend_request("sub.block", [](bool success, auto&& result) {
+    omq_server_.lozzaxd_request("sub.block", [](bool success, auto&& result) {
         if (!success || result.empty())
-            OXEN_LOG(critical, "Failed to subscribe to oxend block notifications: {}",
+            OXEN_LOG(critical, "Failed to subscribe to lozzaxd block notifications: {}",
                     result.empty() ? "response is empty" : result.front());
         else if (result.front() == "OK")
-            OXEN_LOG(info, "Subscribed to oxend new block notifications");
+            OXEN_LOG(info, "Subscribed to lozzaxd new block notifications");
         else if (result.front() == "ALREADY")
-            OXEN_LOG(debug, "Renewed oxend new block notification subscription");
+            OXEN_LOG(debug, "Renewed lozzaxd new block notification subscription");
     });
 }
 
@@ -914,7 +911,7 @@ void ServiceNode::send_storage_test_req(const sn_record& testee,
             {"Host", testee.pubkey_ed25519
                 ? oxenmq::to_base32z(testee.pubkey_ed25519.view()) + ".snode"
                 : "service-node.snode"},
-            {"User-Agent", "Oxen Storage Server/" + std::string{STORAGE_SERVER_VERSION_STRING}},
+            {"User-Agent", "Lozzax Storage Server/" + std::string{STORAGE_SERVER_VERSION_STRING}},
         };
 
         for (auto& [h, v] : sign_request(body.str()))
@@ -1027,7 +1024,7 @@ void ServiceNode::report_reachability(const sn_record& sn, bool reachable, int p
         {"passed", reachable}
     };
 
-    omq_server_.oxend_request("admin.report_peer_status",
+    omq_server_.lozzaxd_request("admin.report_peer_status",
             std::move(cb), params.dump());
 
     if (!reachable || previous_failures > 0) {

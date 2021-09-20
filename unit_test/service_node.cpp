@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <iostream>
 
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 #include "request_handler.h"
 #include "swarm.h"
 #include "time.hpp"

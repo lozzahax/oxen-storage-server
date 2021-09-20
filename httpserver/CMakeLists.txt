@@ -12,7 +12,7 @@ add_library(httpserver_lib STATIC
     omq_server.cpp
     request_handler.cpp
     onion_processing.cpp
-    oxend_rpc.cpp
+    lozzaxd_rpc.cpp
     server_certificates.cpp
     https_server.cpp
     client_rpc_endpoints.cpp
@@ -37,7 +37,7 @@ if(RESOLV)
     target_link_libraries(httpserver_lib PUBLIC ${RESOLV})
 endif()
 
-set(BIN_NAME oxen-storage)
+set(BIN_NAME lozzax-storage)
 
 add_executable(httpserver main.cpp)
 target_compile_options(httpserver PRIVATE -Wall -Wextra -Werror)

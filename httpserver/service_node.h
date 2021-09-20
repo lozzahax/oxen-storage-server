@@ -12,7 +12,7 @@
 
 #include "Database.hpp"
 #include "oxen_common.h"
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 #include "reachability_testing.h"
 #include "stats.h"
 #include "swarm.h"
@@ -35,7 +35,7 @@ inline constexpr auto BOOTSTRAP_TIMEOUT = 10s;
 /// latest block, so they might be still different and thus derive different pairs)
 inline constexpr uint64_t TEST_BLOCKS_BUFFER = 4;
 
-// We use the network hardfork and snode revision from oxend to version-gate upgrade features.
+// We use the network hardfork and snode revision from lozzaxd to version-gate upgrade features.
 using hf_revision = std::pair<int, int>;
 
 // The earliest hardfork *this* version of storage server will work on:
@@ -90,10 +90,10 @@ class ServiceNode {
     // causing a deadlock
     OxenmqServer& omq_server_;
 
-    std::atomic<int> oxend_pings_ = 0; // Consecutive successful pings, used for batching logs about it
+    std::atomic<int> lozzaxd_pings_ = 0; // Consecutive successful pings, used for batching logs about it
 
     // Will be set to true while we have an outstanding update_swarms() call so that we squelch
-    // other update_swarms() until it finishes (or fails), to avoid spamming oxend (particularly
+    // other update_swarms() until it finishes (or fails), to avoid spamming lozzaxd (particularly
     // when syncing when we get tons of block notifications quickly).
     std::atomic<bool> updating_swarms_ = false;
 
@@ -133,8 +133,8 @@ class ServiceNode {
     // nothing if there are no tests currently due).
     void ping_peers();
 
-    /// Pings oxend (as required for uptime proofs)
-    void oxend_ping();
+    /// Pings lozzaxd (as required for uptime proofs)
+    void lozzaxd_ping();
 
     /// Return tester/testee pair based on block_height
     std::optional<std::pair<sn_record, sn_record>> derive_tester_testee(uint64_t block_height);
@@ -155,7 +155,7 @@ class ServiceNode {
     // Initiate node ping tests
     void test_reachability(const sn_record& sn, int previous_failures);
 
-    // Reports node reachability result to oxend and, if a failure, queues the node for retesting.
+    // Reports node reachability result to lozzaxd and, if a failure, queues the node for retesting.
     void report_reachability(const sn_record& sn, bool reachable, int previous_failures);
 
     /// Deprecated; can be removed after HF19
@@ -282,12 +282,12 @@ class ServiceNode {
         return std::nullopt;
     }
 
-    // Called once we have established the initial connection to our local oxend to set up initial
-    // data and timers that rely on an oxend connection.  This blocks until we get an initial
-    // service node block update back from oxend.
-    void on_oxend_connected();
+    // Called once we have established the initial connection to our local lozzaxd to set up initial
+    // data and timers that rely on an lozzaxd connection.  This blocks until we get an initial
+    // service node block update back from lozzaxd.
+    void on_lozzaxd_connected();
 
-    // Called when oxend notifies us of a new block to update swarm info
+    // Called when lozzaxd notifies us of a new block to update swarm info
     void update_swarms();
 
     OxenmqServer& omq_server() { return omq_server_; }

@@ -459,13 +459,13 @@ void RequestHandler::process_client_req(
 }
 
 void RequestHandler::process_client_req(
-        rpc::oxend_request&& req, std::function<void(oxen::Response)> cb) {
+        rpc::lozzaxd_request&& req, std::function<void(oxen::Response)> cb) {
 
-    std::optional<std::string> oxend_params;
+    std::optional<std::string> lozzaxd_params;
     if (req.params)
-        oxend_params = req.params->dump();
+        lozzaxd_params = req.params->dump();
 
-    service_node_.omq_server().oxend_request(
+    service_node_.omq_server().lozzaxd_request(
         "rpc." + req.endpoint,
         [cb = std::move(cb)](bool success, auto&& data) {
             std::string err;
@@ -475,8 +475,8 @@ void RequestHandler::process_client_req(
             if (success && data.size() >= 2 && data[0] == "200") {
                 json result = json::parse(data[1], nullptr, false);
                 if (result.is_discarded()) {
-                    OXEN_LOG(warn, "Invalid oxend response to client request: result is not valid json");
-                    return cb({http::BAD_GATEWAY, "oxend returned unparseable data"s});
+                    OXEN_LOG(warn, "Invalid lozzaxd response to client request: result is not valid json");
+                    return cb({http::BAD_GATEWAY, "lozzaxd returned unparseable data"s});
                 }
                 return cb({http::OK, json{
                     {"result", std::move(result)},
@@ -485,9 +485,9 @@ void RequestHandler::process_client_req(
             }
             return cb({http::BAD_REQUEST,
                 data.size() >= 2 && !data[1].empty()
-                    ? std::move(data[1]) : "Unknown oxend error"s});
+                    ? std::move(data[1]) : "Unknown lozzaxd error"s});
         },
-        oxend_params);
+        lozzaxd_params);
 }
 
 void RequestHandler::process_client_req(
@@ -1038,7 +1038,7 @@ void RequestHandler::process_onion_req(
             },
             cpr::Url{std::move(urlstr)},
             cpr::Header{
-                {"User-Agent", "Oxen Storage Server/" + std::string{STORAGE_SERVER_VERSION_STRING}},
+                {"User-Agent", "Lozzax Storage Server/" + std::string{STORAGE_SERVER_VERSION_STRING}},
                 {"Content-Type", "application/octet-stream"}
             },
             cpr::Timeout{ONION_URL_TIMEOUT},

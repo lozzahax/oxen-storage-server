@@ -1,0 +1,4 @@
+[lozzax-storage-server]
+title=Lozzax storage server
+description=Lozzax service node -- storage server
+ports=22120,22121,38054,38055/tcp

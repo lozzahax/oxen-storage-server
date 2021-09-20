@@ -2,8 +2,8 @@
 #include "command_line.h"
 #include "https_server.h"
 #include "oxen_logger.h"
-#include "oxend_key.h"
-#include "oxend_rpc.h"
+#include "lozzaxd_key.h"
+#include "lozzaxd_rpc.h"
 #include "server_certificates.h"
 #include "service_node.h"
 #include "swarm.h"
@@ -70,8 +70,8 @@ int main(int argc, char* argv[]) {
     if (options.data_dir.empty()) {
         if (auto home_dir = util::get_home_dir()) {
             data_dir = options.testnet
-                ? *home_dir / ".oxen" / "testnet" / "storage"
-                : *home_dir / ".oxen" / "storage";
+                ? *home_dir / ".lozzax" / "testnet" / "storage"
+                : *home_dir / ".lozzax" / "storage";
         } else {
             std::cerr << "Could not determine your home directory; please use --data-dir to specify a data directory\n";
             return EXIT_FAILURE;
@@ -107,14 +107,14 @@ int main(int argc, char* argv[]) {
 
     if (options.ip == "127.0.0.1") {
         OXEN_LOG(critical,
-                 "Tried to bind oxen-storage to localhost, please bind "
+                 "Tried to bind lozzax-storage to localhost, please bind "
                  "to outward facing address");
         return EXIT_FAILURE;
     }
 
     OXEN_LOG(info, "Setting log level to {}", options.log_level);
     OXEN_LOG(info, "Setting database location to {}", data_dir);
-    OXEN_LOG(info, "Connecting to oxend @ {}", options.oxend_omq_rpc);
+    OXEN_LOG(info, "Connecting to lozzaxd @ {}", options.lozzaxd_omq_rpc);
 
     if (sodium_init() != 0) {
         OXEN_LOG(err, "Could not initialize libsodium");
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 
 #ifndef INTEGRATION_TEST
         const auto [private_key, private_key_ed25519, private_key_x25519] =
-            get_sn_privkeys(options.oxend_omq_rpc, [] { return signalled == 0; });
+            get_sn_privkeys(options.lozzaxd_omq_rpc, [] { return signalled == 0; });
 #else
         // Normally we request the key from daemon, but in integrations/swarm
         // testing we are not able to do that, so we extract the key as a
@@ -150,12 +150,12 @@ int main(int argc, char* argv[]) {
         ed25519_seckey private_key_ed25519{};
         x25519_seckey private_key_x25519{};
         try {
-            private_key = legacy_seckey::from_hex(options.oxend_key);
-            private_key_ed25519 = ed25519_seckey::from_hex(options.oxend_ed25519_key);
-            private_key_x25519 = x25519_seckey::from_hex(options.oxend_x25519_key);
+            private_key = legacy_seckey::from_hex(options.lozzaxd_key);
+            private_key_ed25519 = ed25519_seckey::from_hex(options.lozzaxd_ed25519_key);
+            private_key_x25519 = x25519_seckey::from_hex(options.lozzaxd_x25519_key);
         } catch (...) {
             OXEN_LOG(critical, "This storage server binary is compiled in integration test mode: "
-                "--oxend-key, --oxend-x25519-key, and --oxend-ed25519-key are required");
+                "--lozzax-key, --lozzax-x25519-key, and --lozzax-ed25519-key are required");
             throw;
         }
 #endif
@@ -167,11 +167,11 @@ int main(int argc, char* argv[]) {
         sn_record me{"0.0.0.0", options.port, options.omq_port,
                 private_key.pubkey(), private_key_ed25519.pubkey(), private_key_x25519.pubkey()};
 
-        OXEN_LOG(info, "Retrieved keys from oxend; our SN pubkeys are:");
+        OXEN_LOG(info, "Retrieved keys from lozzaxd; our SN pubkeys are:");
         OXEN_LOG(info, "- legacy:  {}", me.pubkey_legacy);
         OXEN_LOG(info, "- ed25519: {}", me.pubkey_ed25519);
         OXEN_LOG(info, "- x25519:  {}", me.pubkey_x25519);
-        OXEN_LOG(info, "- lokinet: {}", me.pubkey_ed25519.snode_address());
+        OXEN_LOG(info, "- lozzaxnet: {}", me.pubkey_ed25519.snode_address());
 
         ChannelEncryption channel_encryption{private_key_x25519, me.pubkey_x25519};
 
@@ -202,7 +202,7 @@ int main(int argc, char* argv[]) {
 
 
         oxenmq_server.init(&service_node, &request_handler, &rate_limiter,
-                oxenmq::address{options.oxend_omq_rpc});
+                oxenmq::address{options.lozzaxd_omq_rpc});
 
         https_server.start();
 

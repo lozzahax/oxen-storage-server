@@ -3,7 +3,7 @@
 #include <nlohmann/json_fwd.hpp>
 #include <string>
 #include <variant>
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 #include "channel_encryption.hpp"
 
 namespace oxen {

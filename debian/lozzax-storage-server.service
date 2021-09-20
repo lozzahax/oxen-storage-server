@@ -1,0 +1,18 @@
+[Unit]
+Description=Lozzax storage server
+After=network-online.target
+Wants=lozzax-node.service
+After=lozzax-node.service
+
+[Service]
+User=_loki
+Type=notify
+WatchdogSec=5min
+WorkingDirectory=/var/lib/lozzax
+LimitNOFILE=16384
+Restart=always
+RestartSec=5s
+ExecStart=/usr/bin/lozzax-storage --config-file /etc/lozzax/storage.conf
+
+[Install]
+WantedBy=multi-user.target

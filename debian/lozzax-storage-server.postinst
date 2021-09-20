@@ -11,13 +11,13 @@ if [ "$1" = configure ] && [ -z "$2" ] && [ -f /var/lib/dpkg/info/loki-storage-s
         # so we have to flip it on and off again to make d-s-h realize that it was explicitly
         # disabled when it tries to call d-s-h enable again in the automatic debhelper scripts,
         # below:
-        deb-systemd-helper enable oxen-storage-server.service
-        deb-systemd-helper disable oxen-storage-server.service
+        deb-systemd-helper enable lozzax-storage-server.service
+        deb-systemd-helper disable lozzax-storage-server.service
     fi
 
     if deb-systemd-helper --quiet was-enabled loki-testnet-storage-server.service; then
         # Disabled by default, so enable only if the old one was enabled:
-        deb-systemd-helper enable oxen-testnet-storage-server.service
+        deb-systemd-helper enable lozzax-testnet-storage-server.service
     fi
 fi
 
@@ -27,8 +27,8 @@ fi
 if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
     if [ -n "$2" ] && [ -d /run/systemd/system ]; then
         systemctl --system daemon-reload >/dev/null || true
-        if systemctl --quiet is-active oxen-storage-servers.target; then
-            deb-systemd-invoke restart oxen-storage-servers.target >/dev/null || true
+        if systemctl --quiet is-active lozzax-storage-servers.target; then
+            deb-systemd-invoke restart lozzax-storage-servers.target >/dev/null || true
         fi
     fi
 fi

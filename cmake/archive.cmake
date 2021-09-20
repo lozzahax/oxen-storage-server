@@ -42,7 +42,7 @@ elseif(tar_os STREQUAL "Windows")
   endif()
   set(default_archive create_zip) # .tar.xz files are too scary for Windows users
 endif()
-set(tar_dir "oxen-storage-${tar_os}-${PROJECT_VERSION}${git_tag}")
+set(tar_dir "lozzax-storage-${tar_os}-${PROJECT_VERSION}${git_tag}")
 add_custom_target(create_tarxz
   COMMAND ${CMAKE_COMMAND} -E make_directory "${tar_dir}"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:httpserver> "${tar_dir}"

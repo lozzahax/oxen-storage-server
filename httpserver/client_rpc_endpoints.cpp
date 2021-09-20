@@ -466,16 +466,16 @@ static void load(get_swarm& g, Dict& d) {
 void get_swarm::load_from(json params) { load(*this, params); }
 void get_swarm::load_from(bt_dict_consumer params) { load(*this, params); }
 
-inline const static std::unordered_set<std::string_view> allowed_oxend_endpoints{{
+inline const static std::unordered_set<std::string_view> allowed_lozzaxd_endpoints{{
     "get_service_nodes"sv, "ons_resolve"sv}};
 
 template <typename Dict>
-static void load(oxend_request& o, Dict& d) {
+static void load(lozzaxd_request& o, Dict& d) {
     auto endpoint = parse_field<std::string>(d, "endpoint");
     require("endpoint", endpoint);
     o.endpoint = *endpoint;
-    if (!allowed_oxend_endpoints.count(o.endpoint))
-        throw parse_error{fmt::format("Invalid oxend endpoint '{}'", o.endpoint)};
+    if (!allowed_lozzaxd_endpoints.count(o.endpoint))
+        throw parse_error{fmt::format("Invalid lozzaxd endpoint '{}'", o.endpoint)};
 
     if constexpr (std::is_same_v<Dict, json>) {
         if (auto it = d.find("params"); it != d.end() && !it->is_null())
@@ -484,13 +484,13 @@ static void load(oxend_request& o, Dict& d) {
         if (auto json_str = parse_field<std::string_view>(d, "params")) {
             json params = json::parse(*json_str, nullptr, false);
             if (params.is_discarded())
-                throw parse_error{"oxend_request params field does not contain valid json"};
+                throw parse_error{"lozzaxd_request params field does not contain valid json"};
             if (!params.is_null())
                 o.params = std::move(params);
         }
     }
 }
-void oxend_request::load_from(json params) { load(*this, params); }
-void oxend_request::load_from(bt_dict_consumer params) { load(*this, params); }
+void lozzaxd_request::load_from(json params) { load(*this, params); }
+void lozzaxd_request::load_from(bt_dict_consumer params) { load(*this, params); }
 
 } // namespace oxen::rpc

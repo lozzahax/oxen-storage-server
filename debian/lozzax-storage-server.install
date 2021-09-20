@@ -1,0 +1,4 @@
+/usr/bin/lozzax-storage
+debian/ufw/lozzax-storage-server /etc/ufw/applications.d
+debian/storage.conf /etc/lozzax
+debian/storage-testnet.conf /etc/lozzax

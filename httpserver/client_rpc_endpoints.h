@@ -355,19 +355,19 @@ struct get_swarm final : endpoint {
     void load_from(oxenmq::bt_dict_consumer params) override;
 };
 
-/// Forwards an RPC request to the this storage server's oxend.  Takes keys of:
+/// Forwards an RPC request to the this storage server's lozzaxd.  Takes keys of:
 ///
-/// - `endpoint` (required) the public oxend endpoint name such as "ons_resolve". Only accepts
-///   whitelisted oxend rpc endpoints; currently supported are:
+/// - `endpoint` (required) the public lozzaxd endpoint name such as "ons_resolve". Only accepts
+///   whitelisted lozzaxd rpc endpoints; currently supported are:
 ///     - get_service_nodes
 ///     - ons_resolve
-/// - `params` (optional) dict of parameters to forward to oxend.  Can be omitted or null if no
+/// - `params` (optional) dict of parameters to forward to lozzaxd.  Can be omitted or null if no
 ///   parameters should be passed.
 ///
-/// See oxend rpc documentation (or the oxen-core/src/rpc/core_rpc_server_command_defs.h file) for
-/// information on using these oxend rpc endpoints.
-struct oxend_request final : endpoint {
-    static constexpr auto names() { return NAMES("oxend_request"); }
+/// See lozzaxd rpc documentation (or the oxen-core/src/rpc/core_rpc_server_command_defs.h file) for
+/// information on using these lozzaxd rpc endpoints.
+struct lozzaxd_request final : endpoint {
+    static constexpr auto names() { return NAMES("lozzaxd_request"); }
 
     std::string endpoint;
     std::optional<nlohmann::json> params;
@@ -390,7 +390,7 @@ using client_rpc_types = type_list<
     expire_msgs,
     expire_all,
     get_swarm,
-    oxend_request,
+    lozzaxd_request,
     info
 >;
 

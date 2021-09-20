@@ -1,4 +1,4 @@
-oxen-storage-server (2.2.0-1~ubuntu1804) bionic; urgency=medium
+lozzax-storage-server (2.2.0-1~ubuntu1804) bionic; urgency=medium
 
   * Fix properly tracking failing nodes
   * Move all vendors cmake code to vendors/CMakeLists.txt
@@ -15,7 +15,7 @@ oxen-storage-server (2.2.0-1~ubuntu1804) bionic; urgency=medium
   * Deal with boost::asio's event loop deficiencies
   * https_server fixes
   * Move RequestHandler method implementations to request_handler.cpp
-  * Move parse_pubkey into oxend_key
+  * Move parse_pubkey into lozzaxd_key
   * Remove boost beast & many intertwined changes
   * Convert unit tests to Catch2
   * Add check for up-to-date submodules
@@ -112,7 +112,7 @@ oxen-storage-server (2.2.0-1~ubuntu1804) bionic; urgency=medium
   * Remove testnet exceptions to HF guards
   * Fix duplicate failing enqueuing
   * typedef the clock, not the clock's time
-  * Update oxend endpoint for reachability reporting
+  * Update lozzaxd endpoint for reachability reporting
   * get_swarm: +port_https/port_omq; deprecate "port"
   * Add basic swarm testnet test suite
   * Fix pubkey encoding in https header
@@ -171,7 +171,7 @@ oxen-storage-server (2.2.0-1~ubuntu1804) bionic; urgency=medium
 
  -- Jason Rhinelander <jason@imaginary.ca>  Tue, 06 Jul 2021 16:08:08 -0300
 
-oxen-storage-server (2.1.1-1~ubuntu1804) bionic; urgency=medium
+lozzax-storage-server (2.1.1-1~ubuntu1804) bionic; urgency=medium
 
   * Rediff patches
   * Cosmetic: move decrypt_cbc to be beside encrypt_cbc
@@ -203,7 +203,7 @@ oxen-storage-server (2.1.1-1~ubuntu1804) bionic; urgency=medium
 
  -- Jason Rhinelander <jason@imaginary.ca>  Tue, 27 Apr 2021 15:07:09 -0300
 
-oxen-storage-server (2.1.0-1~ubuntu1804) bionic; urgency=medium
+lozzax-storage-server (2.1.0-1~ubuntu1804) bionic; urgency=medium
 
   [ Jason Rhinelander ]
   * Fix version info string
@@ -219,7 +219,7 @@ oxen-storage-server (2.1.0-1~ubuntu1804) bionic; urgency=medium
   * Use a valid host name for service nodes
 
   [ Jason Rhinelander ]
-  * Reduce oxend ping interval to match lokinet/oxend
+  * Reduce lozzaxd ping interval to match lokinet/lozzaxd
 
   [ Maxim Shishmarev ]
   * No longer require POW for message storage
@@ -243,7 +243,7 @@ oxen-storage-server (2.1.0-1~ubuntu1804) bionic; urgency=medium
   [ Maxim Shishmarev ]
   * Fix build
   * Speed up unit tests for storage
-  * Allow proxying certain requests to oxend
+  * Allow proxying certain requests to lozzaxd
   * Remove jsonrpc fluff
 
   [ Jason Rhinelander ]
@@ -260,14 +260,14 @@ oxen-storage-server (2.1.0-1~ubuntu1804) bionic; urgency=medium
   * Misc logging fixes
   * Make key logging on startup better
   * Bump SS version
-  * Use ephemeral routing id to talk to oxend
+  * Use ephemeral routing id to talk to lozzaxd
   * Fix cmake library dependencies
-  * Make the default oxend rpc understand /var/lib/oxen
+  * Make the default lozzaxd rpc understand /var/lib/oxen
   * Fix report json parsing
   * Properly rate limit random testing
   * Force logging colours on stdout
   * Fix logic inversion on is_ip_public
-  * Fix oxend ping arguments
+  * Fix lozzaxd ping arguments
   * Remove dead code (FailedRequestHandler)
   * Cleanups
   * Use lokinet .snode address for Host header
@@ -281,7 +281,7 @@ oxen-storage-server (2.1.0-1~ubuntu1804) bionic; urgency=medium
   * Unbreak https cert signing by not storing a reference
   * Replace Monero crypto with libsodium
   * Fix sync status when we don't need to bootstrap
-  * Lower oxend ping log frequency
+  * Lower lozzaxd ping log frequency
   * Remove debugging
   * Fix CBC encryption/decryption
   * Remove static req index counter
@@ -314,7 +314,7 @@ oxen-storage-server (2.1.0-1~ubuntu1804) bionic; urgency=medium
   * Add ifdef'ed proxy requests code
   * Fix allowed endpoints unordered_set to be strings
   * Allow opting out of json-nesting and base64 encoding
-  * Simplifies/unwraps the oxend_request endpoint
+  * Simplifies/unwraps the lozzaxd_request endpoint
   * Onion request test program improvements
   * Update oxenmq to tagged version
   * onion-request test script: fix destination in hops
@@ -334,7 +334,7 @@ oxen-storage-server (2.1.0-1~ubuntu1804) bionic; urgency=medium
 
  -- Jason Rhinelander <jason@imaginary.ca>  Thu, 22 Apr 2021 02:23:53 -0300
 
-oxen-storage-server (2.0.8-3~ubuntu1804) bionic; urgency=medium
+lozzax-storage-server (2.0.8-3~ubuntu1804) bionic; urgency=medium
 
   * URL fixes
   * Moved cmake files into cmake/
@@ -348,14 +348,14 @@ oxen-storage-server (2.0.8-3~ubuntu1804) bionic; urgency=medium
   * Remove travis-ci build
   * Remove android/ios bits from static build script
   * Make `lokid-rpc-ip` and `lokid-rpc-port` options still work
-  * Make oxend-rpc-ip actually work
+  * Make lozzaxd-rpc-ip actually work
   * Revert X-Oxen-* header changes
   * Fix archive naming for tagged commits
   * Fix version info string
 
  -- Jason Rhinelander <jason@imaginary.ca>  Mon, 18 Jan 2021 15:39:50 -0400
 
-oxen-storage-server (2.0.8-2~ubuntu1804) bionic; urgency=medium
+lozzax-storage-server (2.0.8-2~ubuntu1804) bionic; urgency=medium
 
   * LokiMQ -> OxenMQ rename (and update to 1.2.3)
   * oxenmq target fix
@@ -366,7 +366,7 @@ oxen-storage-server (2.0.8-2~ubuntu1804) bionic; urgency=medium
 
  -- Jason Rhinelander <jason@imaginary.ca>  Sun, 17 Jan 2021 00:19:34 -0400
 
-oxen-storage-server (2.0.8-1~ubuntu1804) bionic; urgency=medium
+lozzax-storage-server (2.0.8-1~ubuntu1804) bionic; urgency=medium
 
   [ Jason Rhinelander ]
   * boost 1.73+ compatibility without deprecation warning

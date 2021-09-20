@@ -1,5 +1,5 @@
 #include "rate_limiter.h"
-#include "oxend_key.h"
+#include "lozzaxd_key.h"
 
 #include <catch2/catch.hpp>
 #include <oxenmq/oxenmq.h>
